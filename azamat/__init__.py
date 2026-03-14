@@ -1,110 +1,184 @@
-#1
-# a=[1,2,3,4,5,6]
-# a.reverse()
-# print(a)
-#2
-# a=[7,3,5,4,2,6,9]
-# a.sort()
-# print(a[-1])
-# print(a[0])
-#3
-# a=[2,4,6,4,9,2,1]
-# x=0
-# y=0
-# for i in a:
-#     x+=i
-#     y+=i / len(a)
-# print(x)
-# print(y)
-#4
-# a=[1,3,5,4,2,1,7,1]
-# b=[]
-# for i in a:
-#     if i not in b:
-#         b.append(i)
-# print(b)
-#5
-# a=[2,3,7,1,4,8,9]
-# a.sort()
-# print(a)
-# a.reverse()
-# print(a)
-#6
-# a=[3,6,1,2]
-# a.pop(2)
-# a.insert(2,4)
-# print(a)
-#7
-# a=[1,2,5,3,2,2,5]
-# x=0
-# for i in a:
-#     if i==2:
-#         x+=1
-# print(x)
-#8
-# a=[1,2,3]
-# b=[4,5,6]
-# print(a+b)
-#9
-# a=[1,2,3,4,5,6]
-# x=[]
-# y=[]
-# for i in a:
-#     if i%2==0:
-#         x.append(i)
-#     else:
-#         y.append(i)
-# print(x)
-# print(y)
-#10
-# a=[2,5,3,1,8,6]
-# a.sort()
-# x=a[-2]
-# print(x)
+file  = open("shop_logs.txt", "r")
+unique_users = set()
+total_buys = 0
+total_sum = 0
+user_spending = {}
+for line in file:
+    parts = line.strip().split(";")
+    user_id = parts[1]
+    print(user_id)
+    action = parts[2]
+    unique_users.add(user_id)
+    if action == "BUY":
+        total_buys += 1
+        amount = int(parts[3])
+        total_sum += amount
+        if amount not in user_spending:
+            user_spending[user_id] = amount
+        else:
+            user_spending[user_id] += amount
+file.close()
 
-      #SET
-#2
-# a={1,2,3,4}
-# b={1,2,4,3}
-# if a==b:
-#     print("true")
-# else:
-#     print("false")
-#3
-# x={2,4,32,5,6}
-# print(len(x))
-# x=sorted(x)[-1]
-# print(x)
-#4
-# a={1,2,3,4,5,6,7,8,9,10}
-# b=[]
-# for i in a:
-#     x=i**2
-#     b.append(x)
-# x=set(b)
-# print(x)
-#5
-# A={1,3,2,6,5,8}
-# B={1,3,2}
-#
-# print(B.issubset(A))
-#6
-# x={1,2,3,4,5,67,8}
-# b=int(input())
-# a=[]
-# for i in x:
-#     if i==b:
-#         continue
-#     a.append(i)
-# c=set(a)
-# print(c)
+max_user=""
+max_spent=0
+for user in user_spending:
+    if user_spending[user] > max_spent:
+        max_spent = user_spending[user]
+        max_user = user
+if total_buys > 0:
+    bill= total_sum/total_buys
+else:
+    bill = 0
+report= open("report.txt","w" , encoding="utf-8")
+report.write("Уникальных пользователей: " + str(len(unique_users)) + "\n")
+report.write("Всего покупок: " + str(total_buys) + "\n")
+report.write("Общая сумма: " + str(total_sum) + "\n")
+report.write("Самый активный покупатель: " + max_user + "\n")
+report.write("Средний чек: " + str(bill) + "\n")
+report.close()
+print("Отчет успешно создан!")
+
+data = """name,department,salary
+Ali,IT,500000
+Dana,HR,300000
+Arman,IT,600000
+Aruzhan,Marketing,400000
+Dias,IT,450000"""
+with open("employees.csv", "w") as f:
+    f.write(data)
 
 
-#1
-# a=[1,2,3,2,1]
-# x=len(set(a))
-# print(x)
+import csv
+all_employees = []
+dept_salary = {}
+with open("employees.csv", "r", encoding="utf-8") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        salary = int(row["salary"])
+        dept = row["department"]
+        all_employees.append(row)
+        row["salary"] = salary
+        if dept not in dept_salary:
+            dept_salary[dept] = []
+        dept_salary[dept].append(salary)
 
-#2
-a=[1,3,2]
-b=[4,3,2]
+total_salary = sum(i["salary"] for i in all_employees)
+avg_total = total_salary / len(all_employees)
+
+dept_averages = {}  #орташа dept
+for dept, salary in dept_salary.items():
+    avg = sum(salary) / len(salary)
+    dept_averages[dept] = avg
+
+best_dept_name = max(dept_averages, key=dept_averages.get)
+best_dept_value = dept_averages[best_dept_name]
+richest_emp = max(all_employees, key=lambda i: i["salary"])
+print(f"Орташа жалақы: {avg_total}")
+print(f"Ең бай бөлім: {best_dept_name} ({best_dept_value})")
+print(f"Ең бай қызметкер: {richest_emp['name']}")
+
+
+q = []
+for i in all_employees:
+    if i["salary"] > avg_total:
+        q.append(i)
+
+with open("high_salary.csv", "w", encoding="utf-8") as f:
+    columns = ["name", "department", "salary"]
+    writer = csv.DictWriter(f, fieldnames=columns)
+    writer.writeheader()
+    writer.writerows(q)
+print("\n")
+with open("high_salary.csv", "r", encoding="utf-8") as f:
+    q = csv.reader(f)
+    for i in q:
+        print(i)
+
+import json
+data = [
+  {
+    "order_id": 1,
+    "user": "Ali",
+    "items": ["phone", "case"],
+    "total": 300000
+  },
+  {
+    "order_id": 2,
+    "user": "Dana",
+    "items": ["laptop"],
+    "total": 800000
+  },
+  {
+    "order_id": 3,
+    "user": "Ali",
+    "items": ["mouse", "keyboard"],
+    "total": 70000
+  }
+]
+with open("orders.json", "w") as f:
+    json.dump(data, f, indent=4)
+
+import json
+with open("orders.json", "r") as f:
+        data = json.load(f)
+
+total_revenue = 0
+user_order_counts = {}
+item_counts = {}
+richest_order = None
+max_price = 0
+for i in data:
+    total_revenue += i["total"]
+
+    user = i["user"]    # читаем з к.п
+    if user in user_order_counts:
+        user_order_counts[user] += 1
+    else:
+        user_order_counts[user] = 1
+
+    if i["total"] > max_price:
+        max_price = i["total"]
+        richest_order = i
+
+    for j in i["items"]:
+        if j in item_counts:
+            item_counts[j] += 1
+        else:
+            item_counts[j] = 1
+q = None
+w = 0
+for item, count in item_counts.items():
+    if count > w:
+        w = count
+        q = item
+
+top_user = richest_order["user"] if richest_order else None
+
+resalt = {"total_revenue": total_revenue,
+    "top_user": top_user,
+    "most_popular_item": q,
+    "total_orders": len(data)}
+with open("summary.json", "w") as f:
+    json.dump(resalt, f, indent=4)
+
+with open("summary.json", "r") as f:
+    print(f.read())
+
+data = """user_id,amount
+user_1,5000
+user_2,10000
+user_1,700000
+user_3,3000
+user_2,900000
+user_4,2000"""
+with open("transactions.csv", "w") as f:
+    f.write(data)
+import csv
+import json
+
+a=[]
+b=set()
+c={}
+with open("transactions.csv", "r") as f:
+    reader=csv.DictReader(f)
+for i in reader:
